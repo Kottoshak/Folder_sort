@@ -1,0 +1,76 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+//using System.Windows.Forms;
+
+namespace TestConcole
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            DriveInfo[] drives = DriveInfo.GetDrives();
+            foreach (DriveInfo drive in drives)
+            {
+                var driveDriveType1 = Convert.ToString(drive.DriveType);//Приобразование типов в строку
+                if (driveDriveType1 == "Removable")//Проверка диска на фактор флешки через переменную
+                {
+                    
+                    //Создание папки
+                    string f = "Draft";
+                    Directory.CreateDirectory(Path.Combine(drive.RootDirectory + @"\" + f));
+                    foreach (var item in drive.RootDirectory.GetDirectories())
+                    {
+                        try
+                        {
+                            //Перемещение в папку папок
+                            item.MoveTo(drive.RootDirectory + @"\" + f + @"\" + item.Name);
+                        }
+                        catch
+                        {
+                            continue;
+                        }
+                    }
+                    foreach (var item in drive.RootDirectory.GetFiles())
+                    {
+                        try
+                        {
+                            //Перемещение в папку файлов
+                            item.MoveTo(drive.RootDirectory + @"\" + f + @"\" + item.Name);
+                        }
+                        catch
+                        {
+                            continue;
+                        }
+                    }
+                    string catalog = @"E:";//Дискц поиска
+                    string fileName = "*.mp?";//Шаблон поиска
+                    //проводим поиск в выбранном каталоге и во всех его подкаталогах
+                    foreach (string findedFile in Directory.EnumerateFiles(catalog, fileName, SearchOption.AllDirectories))
+                    {
+                        FileInfo FI;
+                        try
+                        {
+                            var g = Convert.ToString(drive.RootDirectory);
+                            //по полному пути к файлу создаём объект класса FileInfo
+                            FI = new FileInfo(findedFile);
+                            FI.MoveTo(g + @"\" + FI.Name);
+                        }
+                        catch //слишком длинное имя файла
+                        {
+                            continue;
+                        }
+                    }
+                    foreach (var item in drive.RootDirectory.GetDirectories())
+                    {
+                        Console.WriteLine($"Метка диска: {item}");
+                    }
+                    foreach (var item in drive.RootDirectory.GetFiles())
+                    {
+                        Console.WriteLine($"Метка диска: {item}");
+                    }
+                }
+            }
+        }
+    }
+}
